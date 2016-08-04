@@ -8,14 +8,14 @@ ENV DAPPER_OUTPUT ./bin ./dist
 ENV DAPPER_DOCKER_SOCKET true
 ENV TRASH_CACHE ${DAPPER_SOURCE}/.trash-cache
 ENV HOME ${DAPPER_SOURCE}
-ENV LONGHORN_ORCHESTRATION_DEV_DIR ${DAPPER_SOURCE}
-ENV LONGHORN_URL https://github.com/cjellick/longhorn.git
-ENV LONGHORN_COMMIT 9b30f6e52905462e9967dac0831abdd2c596778f
 ENV GOLANG_ARCH_amd64=amd64 GOLANG_ARCH_arm=armv6l GOLANG_ARCH=GOLANG_ARCH_${ARCH} \
     GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
 ENV DOCKER_URL_amd64=https://get.docker.com/builds/Linux/x86_64/docker-1.10.3 \
     DOCKER_URL_arm=https://github.com/rancher/docker/releases/download/v1.10.3-ros1/docker-1.10.3_arm \
     DOCKER_URL=DOCKER_URL_${ARCH}
+ENV LONGHORN_ORCHESTRATION_DEV_DIR ${DAPPER_SOURCE}
+ENV LONGHORN_URL https://github.com/cjellick/longhorn.git
+ENV LONGHORN_COMMIT 75a0d88aac1dc37bfc49f40a5637db730698023a
 
 RUN apt-get update && \
     apt-get install -y \
