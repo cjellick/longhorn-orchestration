@@ -1,0 +1,3 @@
+cattle==0.5.1
+flake8==2.5.1
+pytest==2.3.5

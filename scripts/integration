@@ -1,0 +1,88 @@
+#!/bin/bash
+set -e
+
+cd $(dirname $0)/..
+
+echo Setting up rancher for integration tests
+
+GOPATH=/tmp/longhorn
+mkdir -p $GOPATH/src/github.com/rancher
+pushd $GOPATH/src/github.com/rancher
+
+git clone ${LONGHORN_URL}
+pushd longhorn
+git checkout ${LONGHORN_COMMIT}
+cp -r ${DAPPER_SOURCE} longhorn-orchestration
+
+# This assumes some foreknowledge of what longhorn's DAPPER_SOURCE will be, but it is a safe assumption
+TAG=integration-test LONGHORN_ORCHESTRATION_DEV_DIR=/go/src/github.com/rancher/longhorn/longhorn-orchestration make package
+docker save -o longhorn.tar rancher/longhorn:integration-test
+
+#echo Launching rancher server...
+#server=$(docker run -d --expose 8080 rancher/server:latest)
+#server_ip=$(docker inspect $server | jq -r ".[0].NetworkSettings.IPAddress")
+#base_url=http://$server_ip:8080/v1
+#until $(curl --output /dev/null --silent --fail $base_url); do
+#    echo "Waiting for server. Current log line:  $(docker logs --tail 2 $server)"
+#    echo "..."
+#    sleep 5
+#done
+#
+#echo Getting registration command...
+#token=$(curl -X POST $base_url/projects/1a5/registrationtokens)
+#get_token_url=$(echo $token | jq -r '.links["self"]')
+#command=$(echo $token | jq -r ".command")
+#until [ -n "$command" ] && [ "$command" != "null" ]; do
+#    echo "Waiting on command from registration token"
+#    command=$(curl $get_token_url | jq -r ".command")
+#    sleep 1
+#done
+#echo "Got registration command: $command"
+#
+#echo Launching first docker-in-docker host
+#node1=$(docker run --privileged -itd rancher/dind:v1.10.3-rancher1)
+#docker exec -it $node1 /usr/local/bin/wrapdocker
+#docker exec $node1 $command
+#docker cp longhorn.tar $node1:/root
+#docker exec $node1 docker load --input /root/longhorn.tar
+#
+#
+#echo Launching second docker-in-docker host
+#node2=$(docker run --privileged -itd rancher/dind:v1.10.3-rancher1)
+#docker exec -it $node2 /usr/local/bin/wrapdocker
+#docker exec $node2 $command
+#docker cp longhorn.tar $node2:/root
+#docker exec $node2 docker load --input /root/longhorn.tar
+#
+#creds=$(curl "${base_url}/projects/1a5/apikey" --data '{"type":"apikey","accountId":"1a5"}')
+#access_key=$(echo $creds | jq -r '.publicValue')
+#secret_key=$(echo $creds | jq -r '.secretValue')
+#echo "Got credentials : $access_key $secret_key"
+#echo -e "${base_url}\n ${access_key}\n ${secret_key}\n" | rancher --url ${base_url} config
+#until [ "$(rancher hosts | grep -v ID | wc -l)" == "2" ]; do
+#    echo waiting for hosts to register
+#    rancher hosts
+#    sleep 1
+#done
+#rancher wait 1h1
+#rancher wait 1h2
+
+echo Deploying longhorn stack
+popd
+popd
+#git clone https://github.com/cjellick/longhorn-catalog.git
+#pushd longhorn-catalog/templates/longhorn/0
+#git checkout integration-testing
+#rancher up -d
+#rancher wait 1e1
+#popd
+
+echo Running tests
+pushd integration
+#CATTLE_URL=${base_url} tox
+
+find -depth -name __pycache__ -o -name "*.pyc" -exec rm -rf {} \;
+if [ -z "$NO_TEST" ]; then
+    export CATTLE_TEST_URL=${base_url}
+    tox -v "$@"
+fi
