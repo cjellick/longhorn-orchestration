@@ -15,7 +15,7 @@ ENV DOCKER_URL_amd64=https://get.docker.com/builds/Linux/x86_64/docker-1.10.3 \
     DOCKER_URL=DOCKER_URL_${ARCH}
 ENV LONGHORN_ORCHESTRATION_DEV_DIR ${DAPPER_SOURCE}
 ENV LONGHORN_URL https://github.com/cjellick/longhorn.git
-ENV LONGHORN_COMMIT 75a0d88aac1dc37bfc49f40a5637db730698023a
+ENV LONGHORN_COMMIT 205f6fa48ddef41cb048963daa7abd359233a1ba
 
 RUN apt-get update && \
     apt-get install -y \
