@@ -82,6 +82,5 @@ pushd integration
 
 find -depth -name __pycache__ -o -name "*.pyc" -exec rm -rf {} \;
 if [ -z "$NO_TEST" ]; then
-    export CATTLE_TEST_URL=${base_url}
-    tox -v "$@"
+    CATTLE_TEST_URL=${base_url} tox -v "$@"
 fi
