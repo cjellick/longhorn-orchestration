@@ -19,7 +19,9 @@ TAG=integration-test LONGHORN_ORCHESTRATION_DEV_DIR=/go/src/github.com/rancher/l
 docker save -o longhorn.tar rancher/longhorn:integration-test
 
 echo Launching rancher server...
-server=$(docker run -d --expose 8080 rancher/server:latest)
+# Until API changes are merged, need to do a build master
+# server=$(docker run -d --expose 8080 rancher/server:latest)
+server=$(docker run -d --expose 8080 --privileged -e CATTLE_REPO:="https://github.com/cjellick/cattle.git" -e CATTLE_COMMIT=snapshot-backup-refactor rancher/build-master:latest)
 server_ip=$(docker inspect $server | jq -r ".[0].NetworkSettings.IPAddress")
 base_url=http://$server_ip:8080/v1
 until $(curl --output /dev/null --silent --fail $base_url); do
